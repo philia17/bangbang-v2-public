@@ -2,7 +2,7 @@
 
 Facial landmarks, action-unit heuristics, emotion-model training, and a Raspberry Pi vision workflow from a collaborative robot-perception project. Siheng Ye contributed to the face/emotion perception pipeline and its embedded integration.
 
-[Project overview](https://siheng-ye-portfolio.minjunc1984.chatgpt.site/#bangbang-title) · [Source provenance](SOURCE_PROVENANCE.md) · [External assets](ASSETS.md)
+[Project overview](https://philia17.github.io/#bangbang-title) · [Source provenance](SOURCE_PROVENANCE.md) · [External assets](ASSETS.md)
 
 The related paper, *Bangbang V2: On-Device Facial Emotion and Bilingual Speech Recognition for a Raspberry Pi-Based Tele-Operated Avatar Robot*, was accepted for presentation at **HRFEST 2026, Paper 230**. Camera-ready preparation is in progress; proceedings publication and indexing are not confirmed. This source snapshot is a set of development components, not a reproduction package for every component described in the paper.
 
