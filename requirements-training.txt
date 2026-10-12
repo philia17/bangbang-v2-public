@@ -1,0 +1,8 @@
+-r requirements-vision.txt
+# Additional imports used by the included training/export scripts.
+torch>=2.0.0
+torchvision>=0.15.0
+pillow
+tqdm
+onnx
+onnxscript

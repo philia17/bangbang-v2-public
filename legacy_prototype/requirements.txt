@@ -1,0 +1,7 @@
+# Legacy stationary prototype; platform audio libraries are also required.
+numpy<2
+opencv-python<4.12
+mediapipe==0.10.18
+pyyaml>=6.0
+vosk>=0.3.45
+pyaudio>=0.2.13

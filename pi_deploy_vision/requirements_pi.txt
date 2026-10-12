@@ -1,0 +1,9 @@
+# Pi deployment dependencies for bangbang-v2
+opencv-python<4.12
+numpy<2
+onnxruntime
+mediapipe==0.10.18
+protobuf>=4.25.3,<5
+matplotlib
+absl-py
+attrs

@@ -1,0 +1,210 @@
+# Bangbang V2 - Default Configuration
+# Historical example values for Raspberry Pi 5 + Camera Module 3 + ReSpeaker 4-Mic Array.
+# These targets and heuristics are not newly validated hardware or clinical results.
+# Stationary deployment (no motors/IR sensors)
+
+## Logging
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  file: "logs/bangbang.log"
+  max_size_mb: 10
+  backup_count: 5
+  console: true
+
+## Hardware Parameters
+hardware:
+  # Camera settings (libcamera)
+  camera:
+    width: 1920
+    height: 1080
+    fps: 30
+    rotation: 0  # degrees
+    autofocus: true
+    hdr: true
+    device: "/dev/video0"
+
+  # Microphone settings (ReSpeaker Mic Array v2.0 - XMOS XVF-3000 with hardware DSP)
+  microphone:
+    sample_rate: 16000
+    channels: 1  # mono after beamforming
+    chunk_size: 2048  # frames per buffer
+    device_index: null  # auto-detect
+    vad_enabled: true
+    vad_threshold: 0.5
+    vad_min_silence_ms: 500
+
+  # Safety thresholds
+  safety:
+    cpu_temperature_threshold: 80  # degrees C
+    watchdog_interval: 10  # seconds
+
+## Vision Pipeline
+vision:
+  # Face Mesh model (MediaPipe)
+  face_mesh:
+    static_image_mode: false
+    max_num_faces: 1
+    refine_landmarks: true
+    min_detection_confidence: 0.5
+    min_tracking_confidence: 0.5
+
+  # Eye Aspect Ratio (EAR) landmarks
+  ear:
+    left_eye_indices: [362, 385, 387, 263, 373, 380]
+    right_eye_indices: [33, 160, 158, 133, 153, 144]
+    ear_threshold: 0.2
+    ear_close_duration_threshold: 2.0  # seconds
+
+  # Nasolabial fold landmarks
+  nasolabial:
+    indices: [61, 291, 39, 269]
+    downward_shift_threshold: -0.05
+
+  # Eyebrow furrow
+  eyebrow:
+    indices: [65, 158, 295]
+    lower_threshold: 0.05
+
+  # Distress detection
+  distress:
+    low_pain_ear: 0.25
+    medium_pain_ear: 0.20
+    high_pain_ear: 0.15
+    low_nasolabial: -0.05
+    medium_nasolabial: -0.10
+    high_nasolabial: -0.15
+
+  # Performance tuning
+  performance:
+    skip_frames: 0  # process every (skip_frames+1) frame
+    resize_factor: 1.0  # scale input frame (0.5 = half size)
+    use_gpu: false  # MediaPipe GPU delegate (experimental)
+
+## Audio Pipeline
+audio:
+  # Speech-to-text mode
+  stt_mode: "vosk"  # The included audio implementation uses Vosk only.
+
+  # Vosk settings
+  vosk:
+    model_path: "models/vosk-model-small-en-us-0.15"
+    sample_rate: 16000
+    partial_results: true
+
+  # Fuzzy matching for accessibility
+  fuzzy:
+    enabled: true
+    max_edit_distance: 2
+    dictionary:
+      - "pain"
+      - "help"
+      - "water"
+      - "medicine"
+      - "nurse"
+      - "doctor"
+      - "stop"
+      - "uncomfortable"
+      - "scared"
+      - "afraid"
+      - "sad"
+      - "tired"
+      - "sick"
+      - "bathroom"
+      - "hurt"
+
+  # Voice activity detection
+  vad:
+    enabled: true
+    threshold: 0.5
+    min_silence_duration: 0.5  # seconds
+
+## Empathy Engine
+empathy:
+  # Pain-level classification thresholds
+  pain_levels:
+    low:
+      ear: 0.25
+      nasolabial: -0.05
+    medium:
+      ear: 0.20
+      nasolabial: -0.10
+    high:
+      ear: 0.15
+      nasolabial: -0.15
+      eyebrow: 0.05
+
+  # Speech-act classification keywords
+  speech_acts:
+    direct_request:
+      - "get"
+      - "bring"
+      - "call"
+      - "open"
+      - "close"
+    emotional_expression:
+      - "pain"
+      - "hurt"
+      - "scared"
+      - "afraid"
+      - "sad"
+      - "uncomfortable"
+      - "tired"
+      - "sick"
+    question:
+      - "what"
+      - "where"
+      - "when"
+      - "why"
+      - "how"
+    greeting:
+      - "hello"
+      - "hi"
+      - "hey"
+    emergency:
+      - "help"
+      - "emergency"
+      - "urgent"
+
+  # Response templates
+  responses:
+    greeting: "Hello! I'm here to help. How are you feeling?"
+    pain_low: "I notice you might be uncomfortable. Can I get you something?"
+    pain_medium: "You may need assistance. Would you like to alert the supervising operator?"
+    pain_high: "This signal needs attention. Please alert the supervising operator."
+    emotional_distress: "I'm here for you. Would you like to talk about how you're feeling?"
+    request: "I'll do my best to help. Let me see what I can do."
+    question: "That's a good question. Let me help you find the answer."
+    unknown: "I'm here to help. Please tell me what you need."
+    fallback: "I'm having trouble understanding. Please wait a moment."
+
+  # Urgency levels
+  urgency:
+    none: 0
+    low: 1
+    medium: 2
+    high: 3
+    critical: 4
+
+## Performance Targets
+performance:
+  target_latency: 0.8  # seconds (800 ms)
+  vision_fps_target: 30
+  audio_chunk_ms: 3000
+  update_interval: 0.5  # seconds between empathy updates
+
+  # Latency budget breakdown (for profiling)
+  budget:
+    audio_capture: 100  # ms
+    stt: 200  # ms
+    fuzzy_match: 10  # ms
+    vision_capture: 33  # ms
+    face_mesh: 200  # ms
+    distress_detection: 10  # ms
+    empathy_fusion: 50  # ms
+    response_generation: 50  # ms
+
+## System
+system:
+  watchdog_interval: 10  # seconds
+  log_performance: true
+  simulate_hardware: false  # for testing without physical robot
